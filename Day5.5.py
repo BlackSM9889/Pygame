@@ -67,19 +67,16 @@ class Tile(pygame.Rect):
 
 def create_map():
     tiles.clear()
-    
-    # 精確計算：畫面總高度 - 3格空隙 - 1格地板本身 = 距離底部 4 格的位置
-    # 這樣地板下方就會剛好剩下 3 格 TILE_SIZE 的高度是空的
+
     suspended_y = GAME_HEIGHT - (TILE_SIZE * 3)
 
-    # === 1. 底部懸浮長地表 (規格：range 20) ===
+    # 1. 底部懸浮長地表 (規格：range 20) 
     for i in range(20): 
         # 只畫這一層地表，下方不寫任何填充迴圈，達成簍空效果
         tile = Tile(i * TILE_SIZE, suspended_y, floor_tile_image)
         tiles.append(tile)
     
-    # === 2. 左側垂直柱子 (規格：range 3) ===
-    # 柱子長在懸浮地表上方
+    # 2. 左側垂直柱子 (規格：range 3) 
     for i in range(3):
         tile = Tile(TILE_SIZE * 3, suspended_y - (i + 1) * TILE_SIZE, floor_tile_image)
         tiles.append(tile)
@@ -116,29 +113,27 @@ def check_tile_collision_y():
         player.velocity_y = 0
 
 def move():
-    # === 1. 計算 X 軸的速度（處理摩擦力） ===
+    # x
     keys = pygame.key.get_pressed()
     
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-        # 向左加速，直到達到負的最大速度
+
         player.velocity_x = -PLAYER_DISTANCE
         player.direction = "left"
     elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-        # 向右加速，直到達到正的最大速度
+        
         player.velocity_x = PLAYER_DISTANCE
         player.direction = "right"
     else:
-        # --- 摩擦力邏輯 ---
-        # 如果沒按鍵，且速度不為 0，則慢慢減速
+        # friction
         if player.velocity_x > 0:
             player.velocity_x = max(0, player.velocity_x - FRICTION)
         elif player.velocity_x < 0:
             player.velocity_x = min(0, player.velocity_x + FRICTION)
 
-    # === 2. X 軸實際位移與碰撞檢查 ===
+    # x collision
     player.x += player.velocity_x
     
-    # 邊界與方塊碰撞
     if player.x < 0: player.x = 0
     if player.right > GAME_WIDTH: player.right = GAME_WIDTH
     
@@ -146,9 +141,9 @@ def move():
     if tile:
         if player.velocity_x > 0: player.right = tile.left
         if player.velocity_x < 0: player.left = tile.right
-        player.velocity_x = 0 # 撞到牆速度要歸零，否則會一直想往牆裡鑽
+        player.velocity_x = 0 
 
-    # === 3. Y 軸位移與碰撞檢查（重力） ===
+    # y
     player.velocity_y += GRAVITY
     player.y += player.velocity_y
     
