@@ -70,27 +70,21 @@ class Tile(pygame.Rect):
         self.image = image
 
 def create_map():
-    # 每次生成前先清空列表，避免重複疊加
     tiles.clear()
 
-    # 第一組：在玩家出生點下方 2 格處生成 4 個方塊 (出生平台)
     for i in range(4):
         tile = Tile(player.x + i*TILE_SIZE, player.y + TILE_SIZE*2, floor_tile_image)
         tiles.append(tile)
     
-    # 第二組：在玩家出生點下方 5 格處生成 16 個方塊 (主地板)
     for i in range(16):
         tile = Tile(i*TILE_SIZE, player.y + TILE_SIZE*5, floor_tile_image)
         tiles.append(tile)
 
-    # 第三組：在固定 X 軸 (3倍尺寸) 處生成 3 個垂直排列的方塊 (左側裝飾或柱子)
     for i in range(3):
-        # Y 軸從第 10 格開始往下排
         tile = Tile(TILE_SIZE*3, (i+10)*TILE_SIZE, floor_tile_image)
         tiles.append(tile)
 
 def check_tile_collision():
-    # 這個函式要靠最左邊寫，不要縮進到 create_map 裡面
     for tile in tiles:
         if player.colliderect(tile):
             return tile
