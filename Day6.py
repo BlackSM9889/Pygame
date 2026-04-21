@@ -80,18 +80,15 @@ class Tile(pygame.Rect):
 def create_map():
     tiles.clear()
     
-    # 精確計算：畫面總高度 - 3格空隙 - 1格地板本身 = 距離底部 4 格的位置
-    # 這樣地板下方就會剛好剩下 3 格 TILE_SIZE 的高度是空的
     suspended_y = GAME_HEIGHT - (TILE_SIZE * 3)
 
-    # === 1. 底部懸浮長地表 (規格：range 20) ===
+    # 1. 底部懸浮長地表 (規格：range 20) 
     for i in range(20): 
         # 只畫這一層地表，下方不寫任何填充迴圈，達成簍空效果
         tile = Tile(i * TILE_SIZE, suspended_y, floor_tile_image)
         tiles.append(tile)
     
-    # === 2. 左側垂直柱子 (規格：range 3) ===
-    # 柱子長在懸浮地表上方
+    # 2. 左側垂直柱子 (規格：range 3) 
     for i in range(3):
         tile = Tile(TILE_SIZE * 3, suspended_y - (i + 1) * TILE_SIZE, floor_tile_image)
         tiles.append(tile)
@@ -100,8 +97,7 @@ def create_map():
         metall = Metall(player.x + TILE_SIZE*(3+i*1.5), TILE_SIZE*6)
         metalls.append(metall)
 
-    # === 3. 右側懸空平台 (規格：range 4) ===
-    # 依照你的規格，再往上移 3 格
+    # 3. 右側懸空平台 (規格：range 4) 
     for i in range(4):
         tile = Tile(TILE_SIZE * 11 + i * TILE_SIZE, suspended_y - TILE_SIZE * 3, floor_tile_image)
         tiles.append(tile)
@@ -132,26 +128,24 @@ def check_tile_collision_y(character):
         character.velocity_y = 0
 
 def move():
-    # ... (前段處理 X 軸速度的程式碼不變) ...
+    
 
-    # === 2. X 軸實際位移與碰撞檢查 ===
+    # X
     player.x += player.velocity_x
     
     if player.x < 0: player.x = 0
     if player.right > GAME_WIDTH: player.right = GAME_WIDTH
     
-    # 【修正處 1】傳入 player 參數
     tile = check_tile_collision(player) 
     if tile:
         if player.velocity_x > 0: player.right = tile.left
         if player.velocity_x < 0: player.left = tile.right
         player.velocity_x = 0 
 
-    # === 3. Y 軸位移與碰撞檢查（重力） ===
+    # Y 
     player.velocity_y += GRAVITY
     player.y += player.velocity_y
     
-    # 【修正處 2】傳入 player 參數
     tile = check_tile_collision(player) 
     if tile:
         if player.velocity_y > 0: # 落地
