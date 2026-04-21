@@ -2,11 +2,15 @@ import pygame
 from sys import exit
 import os
 import random
+import tile_map
 
 #變數
 TILE_SIZE = 64
+ROW_COUNT = 32
+COLUMN_COUNT = ROW_COUNT
 GAME_WIDTH = 1280
 GAME_HEIGHT = 720
+GAME_MAP = tile_map.OPTIMIZED_GAME_MAP1
 
 PLAYER_X = GAME_WIDTH/2
 PLAYER_Y = GAME_HEIGHT/2
@@ -67,7 +71,17 @@ player_image_jump_shoot_right = load_image("robot-right-jump-shoot.png",
 player_image_jump_shoot_left = load_image("robot-left-jump-shoot.png",
                                            (PLAYER_JUMP_SHOOT_WIDTH, PLAYER_JUMP_HEIGHT))
 player_image_bullet = load_image("bullet.png", (PLAYER_BULLET_WIDTH, PLAYER_BULLET_HEIGHT))
+
 floor_tile_image = load_image("floor-tile.png", (TILE_SIZE, TILE_SIZE))
+wall_tile_image = load_image("wall-tile.png", (TILE_SIZE, TILE_SIZE))
+beam_tile_image = load_image("beam-tile.png", (TILE_SIZE, TILE_SIZE))
+rock_tile1_image = load_image("rock-tile1.png", (TILE_SIZE, TILE_SIZE))
+rock_tile2_image = load_image("rock-tile2.png", (TILE_SIZE, TILE_SIZE))
+rock_tile3_image = load_image("rock-tile3.png", (TILE_SIZE, TILE_SIZE))
+rock_tile4_image = load_image("rock-tile4.png", (TILE_SIZE, TILE_SIZE))
+door_tile_image = load_image("door-tile.png", (TILE_SIZE, TILE_SIZE))
+room_tile_image = load_image("room-tile.png", (TILE_SIZE, TILE_SIZE))
+
 metall_image_right = load_image("metall-right.png", (METALL_WIDTH, METALL_HEIGHT))
 metall_image_left = load_image("metall-left.png", (METALL_WIDTH, METALL_HEIGHT))
 metall_image_guard_right = load_image("metall-guard-right.png", (METALL_WIDTH, METALL_HEIGHT))
@@ -296,6 +310,9 @@ def move_player_x(velocity_x):
         move_map_x(-velocity_x)
 
 def move_map_x(velocity_x):
+    for tile in background_tiles:
+        tile.x += velocity_x
+
     for tile in tiles:
         tile.x += velocity_x        
 
@@ -426,8 +443,9 @@ def move():
         else:
             blader.y += blader.velocity_y
         
+        #bladers hitbox
         if not player.invincible and player.colliderect(blader):
-            player.invincible = True  # 【關鍵】第一時間鎖死
+            player.invincible = True  # 第一時間鎖死
             player.health -= 1
             player.set_invincible(1500)
             
@@ -455,6 +473,9 @@ def draw():
     window.fill("black")
     scaled_background = pygame.transform.scale(background_image, (GAME_WIDTH, GAME_HEIGHT))
     window.blit(scaled_background, (0, 0))
+
+    for tile in background_tiles:
+        window.blit(tile.image, tile)
 
     for tile in tiles:
         window.blit(tile.image, tile)
@@ -488,6 +509,7 @@ def draw():
 player = Player()
 metalls = []
 tiles = []
+background_tiles = []
 items = []
 spikes = []
 bladers = []
