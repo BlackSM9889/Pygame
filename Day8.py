@@ -54,6 +54,7 @@ ITEM_VELOCITY_Y = -11
 
 #image
 def load_image(image_name, scale=None):
+    
     image = pygame.image.load(os.path.join("image", image_name))
     if scale is not None:
         image = pygame.transform.scale(image, scale)
