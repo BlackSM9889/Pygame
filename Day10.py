@@ -104,6 +104,7 @@ clock = pygame.time.Clock()
 pygame.font.init()
 game_font = pygame.font.Font("./megaman-game-font.otf", 24)
 game_over = False
+game_win = False
 
 #Custom event
 INVINCIBLE_END = pygame.USEREVENT + 0
@@ -244,7 +245,7 @@ class Tile(pygame.Rect):
     def __init__(self, x, y, image):
         pygame.Rect.__init__(self, x, y, TILE_SIZE, TILE_SIZE)
         self.image = image
-        
+
 class Item(pygame.Rect):
     def __init__(self, x, y, image):
         pygame.Rect.__init__(self, x, y, image.get_width(), image.get_height())
@@ -284,7 +285,9 @@ def create_map():
             elif map_code == 8:
                 spikes.append(Tile(x, y, spike_image))
             elif map_code == 9:
-                background_tiles.append(Tile(x, y, door_tile_image))
+              door = Tile(x, y, door_tile_image)
+              background_tiles.append(door)
+              doors.append(door)            
             elif map_code == 10:
                 background_tiles.append(Tile(x, y, room_tile_image))
             elif map_code == 11:
@@ -294,7 +297,7 @@ def create_map():
 
 def reset_game():
     global player, metalls, metall_bullets, tiles, background_tiles,\
-    items, spikes, bladers, game_over
+    items, spikes, bladers, game_over, game_win, doors
     player = Player()
     metalls = []
     metall_bullets = [] #used to keep bullets active when metall is destroyed
@@ -305,6 +308,8 @@ def reset_game():
     bladers = []
     create_map()
     game_over = False
+    game_win = False
+    doors = []
 
 def check_tile_collision(character):
     check_range = 200 
@@ -375,7 +380,7 @@ def move_map_x(velocity_x):
     
 
 def move():
-    global metalls, items, bladers,  metall_bullets, game_over
+    global metalls, items, bladers,  metall_bullets, game_over, game_win
     # y  
     player.velocity_y += GRAVITY
     player.y += player.velocity_y
@@ -514,8 +519,12 @@ def move():
                 player.health = min(player.health + 8, player.max_health)
     items = [item for item in items if not item.used]
 
-    if player.health <= 0 or player.y > GAME_HEIGHT:
-        game_over = True
+    for door in doors:
+      if player.colliderect(door):
+        game_win = True    
+
+    if not game_win and (player.health <= 0 or player.y > GAME_HEIGHT):
+       game_over = True    
 
 
 def draw():
@@ -578,9 +587,15 @@ def draw():
 
     if game_over:
         text_surface = game_font.render("Game Over:", False, "black")
-        window.blit(text_surface, (GAME_WIDTH/2, GAME_HEIGHT/2))
+        window.blit(text_surface, (GAME_WIDTH/2+80, GAME_HEIGHT/2))
         text_surface = game_font.render("Press [Enter] to Restart", False, "black")
-        window.blit(text_surface, (GAME_WIDTH/2, GAME_HEIGHT/2 + TILE_SIZE))
+        window.blit(text_surface, (GAME_WIDTH/2+80, GAME_HEIGHT/2 + TILE_SIZE))
+
+    if game_win:
+       text_surface = game_font.render("Game Win!", False, "black")
+       window.blit(text_surface, (GAME_WIDTH/2-400, GAME_HEIGHT/2))
+       text_surface = game_font.render("Press [Enter] to Restart", False, "black")
+       window.blit(text_surface, (GAME_WIDTH/2-400, GAME_HEIGHT/2 + TILE_SIZE))    
 
 #start game
 player = Player()
@@ -591,6 +606,7 @@ background_tiles = []
 items = []
 spikes = []
 bladers = []
+doors = []
 create_map()
 
 while True: #game loop
@@ -631,7 +647,7 @@ while True: #game loop
     if player.shoot_cooldown > 0:
         player.shoot_cooldown -= 1    
 
-    if not game_over:
+    if not game_over and not game_win:
         move()
         draw()
         pygame.display.update()
