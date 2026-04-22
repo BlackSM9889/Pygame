@@ -244,14 +244,7 @@ class Tile(pygame.Rect):
     def __init__(self, x, y, image):
         pygame.Rect.__init__(self, x, y, TILE_SIZE, TILE_SIZE)
         self.image = image
-
-class Spike(Tile): # 讓 Spike 繼承 Tile 的特性
-    def __init__(self, x, y, image):
-        super().__init__(x, y, image)
-        # 定義縮小版的 hitbox，這就是你要的「縮小範圍」
-        # x+8, y+16 代表從左邊縮進 8，頂部縮下 16，大小改為 24x24
-        self.hitbox = pygame.Rect(x + 8, y + 16, 20, 20)
-
+        
 class Item(pygame.Rect):
     def __init__(self, x, y, image):
         pygame.Rect.__init__(self, x, y, image.get_width(), image.get_height())
